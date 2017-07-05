@@ -28,6 +28,16 @@ describe('LearnJS', function() {
 		expect(learnjs.showView).toHaveBeenCalledWith(window.location.hash);
 	});
 	
+	it('can flash an element while setting the text', function() {
+		var elem = $('<p>');
+		spyOn(elem, 'fadeOut').and.callThrough();
+		spyOn(elem, 'fadeIn');
+		learnjs.flashElement(elem, "new text");
+		expect(elem.text()).toEqual("new text");
+		expect(elem.fadeOut).toHaveBeenCalled();
+		expect(elem.fadeIn).toHaveBeenCalled();
+	});
+	
 	describe('problem view', function() {
 		var view;
 		beforeEach(function() {
@@ -47,16 +57,23 @@ describe('LearnJS', function() {
 		});
 		
 		describe('answer section', function() {
+			var resultFlash;
+			
+			beforeEach(function() {
+				spyOn(learnjs, 'flashElement');
+				resultFlash = view.find('.result');
+			});
+			
 			it('can check a correct answer by hitting a button', function() {
 				view.find('.answer').val('true');
 				view.find('.check-btn').click();
-				expect(view.find('.result').text()).toEqual('Correct!');
+				expect(learnjs.flashElement).toHaveBeenCalledWith(resultFlash, 'Correct!');
 			});
 			
 			it('rejects an incorrect answer', function() {
 				view.find('.answer').val('false');
 				view.find('.check-btn').click();
-				expect(view.find('.result').text()).toEqual('Incorrect!');
+				expect(learnjs.flashElement).toHaveBeenCalledWith(resultFlash, 'Incorrect!');
 			});
 		});
 	});
