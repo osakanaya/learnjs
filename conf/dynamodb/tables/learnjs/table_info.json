@@ -1,0 +1,35 @@
+{
+    "Table": {
+        "TableArn": "arn:aws:dynamodb:ap-northeast-1:102132116425:table/learnjs", 
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "problemId", 
+                "AttributeType": "N"
+            }, 
+            {
+                "AttributeName": "userId", 
+                "AttributeType": "S"
+            }
+        ], 
+        "ProvisionedThroughput": {
+            "NumberOfDecreasesToday": 0, 
+            "WriteCapacityUnits": 5, 
+            "ReadCapacityUnits": 5
+        }, 
+        "TableSizeBytes": 0, 
+        "TableName": "learnjs", 
+        "TableStatus": "ACTIVE", 
+        "KeySchema": [
+            {
+                "KeyType": "HASH", 
+                "AttributeName": "userId"
+            }, 
+            {
+                "KeyType": "RANGE", 
+                "AttributeName": "problemId"
+            }
+        ], 
+        "ItemCount": 0, 
+        "CreationDateTime": 1499658278.989
+    }
+}
