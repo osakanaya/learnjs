@@ -95,11 +95,39 @@ describe('LearnJS', function() {
 		var dbspy, req, identityObj;
 		
 		beforeEach(function() {
-			dbspy = jasmine.createSpyObj('db', ['get', 'put']);
+			dbspy = jasmine.createSpyObj('db', ['get', 'put', 'scan']);
 			spyOn(AWS.DynamoDB, 'DocumentClient').and.returnValue(dbspy);
 			spyOn(learnjs, 'sendDbRequest');
 			identityObj = {id: 'COGNITO_ID'};
 			learnjs.identity.resolve(identityObj);
+		});
+		
+		describe('countAnswers', function() {
+			beforeEach(function() {
+				dbspy.scan.and.returnValue('request');
+			});
+			
+			it('reads the item from the database', function(done) {
+				learnjs.sendDbRequest.and.returnValue(new $.Deferred().resolve('item'));
+				learnjs.countAnswers(1).then(function(item) {
+					expect(item).toEqual('item');
+					expect(learnjs.sendDbRequest).toHaveBeenCalledWith('request', jasmine.any(Function));
+					expect(dbspy.scan).toHaveBeenCalledWith({
+						TableName: 'learnjs',
+						Select: 'COUNT',
+						FilterExpression: 'problemId = :problemId',
+						ExpressionAttributeValues: {':problemId': 1},
+					});
+					done();
+				});
+			});
+			
+			it('resubmits the request on retry', function() {
+				learnjs.countAnswers(1);
+				spyOn(learnjs, 'countAnswers').and.returnValue('promise');
+				expect(learnjs.sendDbRequest.calls.first().args[1]()).toEqual('promise');
+				expect(learnjs.countAnswers).toHaveBeenCalledWith(1);
+			});
 		});
 		
 		describe('fetch answer', function() {
