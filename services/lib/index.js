@@ -37,7 +37,7 @@ function filterItems(items) {
 
 exports.popularAnswers = function(json, context) {
 	exports.dynamodb.scan({
-		FilterExpression: 'problemId = :problemId',
+ 		FilterExpression: 'problemId = :problemId',
 		ExpressionAttributeValues: {
 			':problemId': json.problemNumber,
 		},
