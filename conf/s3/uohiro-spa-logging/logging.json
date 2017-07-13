@@ -1,0 +1,11 @@
+{
+    "Bucket": "spa.uohiro.me.uk", 
+    "BucketLoggingStatus": {
+        "LoggingEnabled": {
+            "TargetBucket": "uohiro-spa-logging", 
+            "TargetGrants": [
+            ], 
+            "TargetPrefix": ""
+        }
+    }
+}

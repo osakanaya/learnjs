@@ -35,19 +35,48 @@ function filterItems(items) {
 	return topFive;
 }
 
+function getAnswers(problemNumber) {
+	return new Promise(function(resolve, reject) {
+		var result = [];
+		var params = {
+			FilterExpression: 'problemId = :problemId',
+			ExpressionAttributeValues: {
+				':problemId': json.problemNumber,
+			},
+			TableName: config.dynamoTableName,
+		};
+		
+		var loop = function(startKey) {
+			if (typeof startKey !== 'undefined') {
+				params.ExclusiveStartKey = startKey;
+			}
+			
+			exports.dynamodb.scan(params).promise()
+			.then(function(data) {
+				data.Items.forEach(function(item) {
+					result.push(item);
+				});
+				
+				if (typeof data.LastEvaluatedKey !== 'undefined') {
+					loop(data.LastEvaluatedKey);
+				} else {
+					resovle(result);
+				}
+			})
+			.catch(reject);
+		};
+		
+		loop();
+	});
+}
+
 exports.popularAnswers = function(json, context) {
-	exports.dynamodb.scan({
- 		FilterExpression: 'problemId = :problemId',
-		ExpressionAttributeValues: {
-			':problemId': json.problemNumber,
-		},
-		TableName: config.dynamoTableName
-	}, function(err, data) {
-		if (err) {
-			context.fail(err);
-		} else {
-			context.succeed(filterItems(reduceItems({}, data.Items)));
-		}
+	getAnswers()
+	.then(function(items) {
+		context.succeed(filterItems(reduceItems({}, items)));
+	})
+	.catch(function(err) {
+		context.fail(err);
 	});
 };
 
